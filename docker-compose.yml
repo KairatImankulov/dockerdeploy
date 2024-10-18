@@ -1,0 +1,26 @@
+version: "3.8"
+
+services:
+  web:
+    build:
+      context: ..
+    container_name: web
+    command: gunicorn --bind 0.0.0.0:8000 barbershop.wsgi:application
+    volumes:
+      - ./my_project_barbershop:/my_project_barbershop
+    ports:
+      - "8000:8000"
+    environment:
+      - DEBUG=1
+
+  nginx:
+    image: nginx:alpine
+    container_name: nginx
+    volumes:
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
+      - ./my_project_barbershop/staticfiles:/my_project_barbershop/staticfiles  # Связываем статические файлы
+    ports:
+      - "80:80"
+    depends_on:
+      - web  # nginx ждет запуска web
+
